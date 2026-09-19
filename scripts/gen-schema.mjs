@@ -17,7 +17,7 @@ function sqlJsonb(v) {
 
 const rows = spots.map(
   (s) =>
-    `  (${sqlStr(s.name)}, ${s.lat}, ${s.lng}, ${sqlStr(s.ownership)}, ${sqlStr(s.type)}, ${s.pricePerHour}, ${sqlStr(s.priceNote)}, ${sqlBool(s.charging)}, ${sqlStr(s.connectorType)}, ${sqlNum(s.chargingSpeedKw)}, ${sqlJsonb(s.availability)}, ${sqlBool(s.verified)}, ${sqlStr(s.status)})`,
+    `  (${sqlStr(s.name)}, ${s.lat}, ${s.lng}, ${sqlStr(s.ownership)}, ${sqlStr(s.type)}, ${s.pricePerHour}, ${sqlStr(s.priceNote)}, ${sqlBool(s.charging)}, ${sqlStr(s.connectorType)}, ${sqlNum(s.chargingSpeedKw)}, ${sqlJsonb(s.availability)}, false, 'unknown')`,
 );
 const valuesBlock = rows.join(",\n");
 

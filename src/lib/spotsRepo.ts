@@ -6,6 +6,17 @@ import {
   type SpotStatus,
 } from "@/data/spots";
 import { getDeviceId } from "@/lib/deviceId";
+import {
+  parseReportFailure,
+  parseSuggestionFailure,
+  type ReportFailure,
+  type SuggestionFailure,
+} from "@/lib/messages";
+import type { SpotSuggestionInput } from "@/lib/suggestions";
+
+export type SubmitResult<Reason extends string> =
+  | { ok: true }
+  | { ok: false; reason: Reason };
 
 type SpotRow = {
   id: string;
@@ -68,15 +79,48 @@ export function subscribeToSpotUpdates(onChange: (spot: Spot) => void) {
   };
 }
 
+/** The database rejects reports from far away or from spammy devices (see
+ * supabase/schema.sql), so `position` must be the reporter's real location. */
 export async function submitReport(
   spotId: string,
   status: SpotStatus,
-): Promise<{ ok: boolean }> {
-  if (!supabase) return { ok: false };
-  const { error } = await supabase
-    .from("reports")
-    .insert({ spot_id: spotId, status, reporter_device_id: getDeviceId() });
-  return { ok: !error };
+  position: [number, number],
+): Promise<SubmitResult<ReportFailure>> {
+  if (!supabase) return { ok: false, reason: "unknown" };
+  const { error } = await supabase.from("reports").insert({
+    spot_id: spotId,
+    status,
+    reporter_device_id: getDeviceId(),
+    reporter_lat: position[0],
+    reporter_lng: position[1],
+  });
+  if (error) return { ok: false, reason: parseReportFailure(error.message) };
+  return { ok: true };
+}
+
+/** New spots go into a moderation queue, never straight onto the map. */
+export async function submitSpotSuggestion(
+  input: SpotSuggestionInput,
+): Promise<SubmitResult<SuggestionFailure>> {
+  if (!supabase) return { ok: false, reason: "unknown" };
+  const { error } = await supabase.from("spot_suggestions").insert({
+    name: input.name.trim(),
+    lat: input.lat,
+    lng: input.lng,
+    ownership: input.ownership,
+    type: input.type,
+    price_per_hour: input.pricePerHour,
+    price_note: input.priceNote,
+    charging: input.charging,
+    connector_type: input.charging ? input.connectorType : null,
+    charging_speed_kw: input.charging ? input.chargingSpeedKw : null,
+    availability: input.ownership === "private" ? input.availability : null,
+    submitter_device_id: getDeviceId(),
+  });
+  if (error) {
+    return { ok: false, reason: parseSuggestionFailure(error.message, error.code) };
+  }
+  return { ok: true };
 }
 
 /** How many distinct devices reported the same current status recently —

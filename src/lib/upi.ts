@@ -1,9 +1,13 @@
-// Demo only. This builds a UPI deep link the visitor's own UPI app opens —
-// Parqo never touches money or credentials. Before this can take real
-// payments you need your own merchant VPA from a licensed payment
-// aggregator (Razorpay, Cashfree, PhonePe for Business, etc.) — that
-// account has to be created by you, not by this code.
-const DEMO_PAYEE_VPA = "your-upi-id@bank"; // replace with a real merchant VPA later
+// Off by default. Parqo does not take payments yet: this only builds a UPI
+// deep link the visitor's own UPI app opens, and paying it does NOT reserve
+// anything. Enable for internal demos with NEXT_PUBLIC_UPI_DEMO=1 and
+// NEXT_PUBLIC_UPI_VPA=<your test VPA>. For real payments you need a merchant
+// account with a licensed payment aggregator (Razorpay, Cashfree, PhonePe for
+// Business, ...) — that has to be set up by you, not by this code.
+const PAYEE_VPA = process.env.NEXT_PUBLIC_UPI_VPA ?? "";
+
+export const isUpiDemoEnabled =
+  process.env.NEXT_PUBLIC_UPI_DEMO === "1" && PAYEE_VPA.length > 0;
 
 export function buildUpiPayLink(opts: {
   amount: number;
@@ -11,7 +15,7 @@ export function buildUpiPayLink(opts: {
   payeeName?: string;
 }): string {
   const params = new URLSearchParams({
-    pa: DEMO_PAYEE_VPA,
+    pa: PAYEE_VPA,
     pn: opts.payeeName ?? "Parqo",
     am: opts.amount.toFixed(2),
     cu: "INR",
@@ -19,5 +23,3 @@ export function buildUpiPayLink(opts: {
   });
   return `upi://pay?${params.toString()}`;
 }
-
-export const isUpiDemoConfigured = DEMO_PAYEE_VPA !== "your-upi-id@bank";

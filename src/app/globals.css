@@ -31,6 +31,11 @@ body {
   background-position: center;
 }
 
+.parqo-picking,
+.parqo-picking .leaflet-interactive {
+  cursor: crosshair !important;
+}
+
 .thin-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: #444 transparent;

@@ -1,43 +1,35 @@
-// Both services below are free, keyless public demo servers — fine for
-// low-traffic dev/personal use. Before real launch traffic, self-host OSRM
-// and run geocoding through your own backend (Nominatim's usage policy caps
-// direct client-side use at ~1 request/second and asks for a real contact
-// email in a custom User-Agent, which a browser can't set).
+import type { LatLng } from "@/lib/geolocation";
 
-export type LatLng = [number, number];
+export type { LatLng };
 
-/** Delhi-biased geocoding via OpenStreetMap Nominatim. */
+// Both calls go through our own /api routes (see src/app/api) so provider
+// keys, the required Nominatim User-Agent and rate limiting live server-side.
+
 export async function geocode(query: string): Promise<LatLng | null> {
-  const url = new URL("https://nominatim.openstreetmap.org/search");
-  url.searchParams.set("q", query);
-  url.searchParams.set("format", "json");
-  url.searchParams.set("limit", "1");
-  url.searchParams.set("viewbox", "76.8,28.9,77.6,28.3");
-  url.searchParams.set("bounded", "0");
-
-  const res = await fetch(url.toString());
-  if (!res.ok) return null;
-  const results = (await res.json()) as { lat: string; lon: string }[];
-  if (results.length === 0) return null;
-  return [parseFloat(results[0].lat), parseFloat(results[0].lon)];
+  try {
+    const res = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
+    if (!res.ok) return null;
+    const data = (await res.json()) as { lat: number; lng: number };
+    return [data.lat, data.lng];
+  } catch {
+    return null;
+  }
 }
 
-/** Driving route between two points via the public OSRM demo server. */
 export async function fetchDrivingRoute(
   from: LatLng,
   to: LatLng,
 ): Promise<LatLng[] | null> {
-  const url =
-    `https://router.project-osrm.org/route/v1/driving/` +
-    `${from[1]},${from[0]};${to[1]},${to[0]}` +
-    `?overview=full&geometries=geojson`;
-
-  const res = await fetch(url);
-  if (!res.ok) return null;
-  const data = await res.json();
-  const coords = data?.routes?.[0]?.geometry?.coordinates as
-    | [number, number][]
-    | undefined;
-  if (!coords) return null;
-  return coords.map(([lng, lat]) => [lat, lng]);
+  try {
+    const params = new URLSearchParams({
+      from: `${from[0]},${from[1]}`,
+      to: `${to[0]},${to[1]}`,
+    });
+    const res = await fetch(`/api/route?${params.toString()}`);
+    if (!res.ok) return null;
+    const data = (await res.json()) as { path: LatLng[] };
+    return data.path;
+  } catch {
+    return null;
+  }
 }

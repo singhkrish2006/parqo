@@ -2,7 +2,7 @@
 
 # Parqo.
 
-**Find parking across Delhi — public lots, private driveways and EV charging — ranked by distance and price.**
+**Find parking across Delhi**
 
 [![CI](https://github.com/singhkrish2006/parqo/actions/workflows/ci.yml/badge.svg)](https://github.com/singhkrish2006/parqo/actions/workflows/ci.yml)
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs)

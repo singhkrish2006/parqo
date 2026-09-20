@@ -4,7 +4,7 @@
 
 **Find parking across Delhi — public lots, private driveways and EV charging — ranked by distance and price.**
 
-[![CI](https://github.com/OWNER/parqo/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/parqo/actions/workflows/ci.yml)
+[![CI](https://github.com/singhkrish2006/parqo/actions/workflows/ci.yml/badge.svg)](https://github.com/singhkrish2006/parqo/actions/workflows/ci.yml)
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs)
 ![React](https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white)
@@ -83,7 +83,7 @@ flowchart LR
 **Prerequisites:** Node.js 22 or newer and npm.
 
 ```bash
-git clone https://github.com/OWNER/parqo.git
+git clone https://github.com/singhkrish2006/parqo.git
 cd parqo
 npm install
 cp .env.local.example .env.local   # optional for local development

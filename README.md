@@ -181,12 +181,14 @@ tests/            Vitest suites
 
 `npm test` runs 41 tests across 8 suites covering ranking and filtering, route-corridor geometry, availability windows, suggestion validation, rate limiting, error mapping, local storage helpers and integrity checks on the spot catalogue (unique IDs, in-area coordinates, consistent EV and private-spot fields). CI runs lint, type-check, tests and a production build on every push and pull request.
 
+Installable: Parqo ships a web manifest, generated icons and a small service worker (production only) that serves an offline page. The worker never caches API calls, map tiles or database traffic, so availability is always live.
+
 Accessibility: dialogs trap focus, close on Escape and restore focus; filters and toggles expose `aria-pressed`; map markers are keyboard reachable and labelled with name and status; motion respects `prefers-reduced-motion`.
 
 ## Security and privacy
 
 - Row-level security on every table; suggestions are write-only for the public.
-- Security headers (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`); the `X-Powered-By` header is disabled.
+- Security headers (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`) and a Content Security Policy built in `next.config.ts` from your Supabase and tile-provider settings; the `X-Powered-By` header is disabled.
 - `/api` routes validate input, bound coordinates to India, cap route length and rate limit per client IP.
 - No accounts, advertising or analytics. Location is used in the browser and sent only when a report is submitted. See the in-app [privacy page](src/app/privacy/page.tsx) for details.
 
@@ -203,12 +205,14 @@ The in-memory rate limiter is per server instance. If you run many instances, ba
 
 ## Roadmap
 
-- Installable PWA with offline shell and true background push notifications for watched spots
+- Background push notifications for watched spots (needs a push service and accounts to know who to notify)
 - Owner accounts and a host dashboard for managing private listings
 - Payments through a licensed provider (Razorpay, Cashfree or similar)
 - Reporter reputation built on the report history the schema already keeps
-- Content Security Policy and a distributed rate limiter
+- A distributed rate limiter, and a nonce-based CSP to drop `'unsafe-inline'` for scripts
 - Coverage beyond Delhi
+
+Already shipped: installable PWA with an offline page, server-enforced report rules, moderated spot suggestions and a Content Security Policy.
 
 ## Contributing
 

@@ -20,6 +20,7 @@ export async function showNotification(title: string, body: string): Promise<voi
     if (registration) {
       await registration.showNotification(title, {
         body,
+        icon: "/pwa-icon/192",
         tag: "parqo-watch",
       });
       return;
